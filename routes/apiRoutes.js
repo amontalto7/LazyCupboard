@@ -189,7 +189,7 @@ module.exports = function(app) {
         password2: res.body.password2
       });
     } else {
-      db.User.find({ where: { email: req.body.email } }).then(user => {
+      db.User.findOne({ where: { email: req.body.email } }).then(user => {
         if (user) {
           // console.log(user);
           // console.log("Failing");
@@ -245,7 +245,7 @@ module.exports = function(app) {
   //Below is our get request to find the user information page. So far it is returned as json and not as html
   app.get("/api/user", function(req, res) {
     let thisUser = process.env.NODE_ENV !== "test" ? req.user.id : 1;
-    db.User.find({
+    db.User.findOne({
       //1. Go to the models folder, use the Users table and find all data for current user
       where: { id: thisUser }
     }).then(function(dbUser) {
