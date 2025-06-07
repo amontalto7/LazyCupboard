@@ -1,4 +1,6 @@
-var keys = require("../keys");
+require("dotenv").config();
+
+//var keys = require("../keys");
 // REQUIRE MODELS FOLDER WHICH CONTAIN TABLE MODELS
 
 var db = require("../models");
@@ -19,52 +21,51 @@ module.exports.getIngredientInfo = function(
 ) {
   //The ingredientName being passed to this file can only be passed as an object, so we must
   //create a variable to access the property we want in that object.
-  var food = ingredientName.ingredient;
+  const food = ingredientName.ingredient;
 
-  //Query ID is required by the API - see documentation on Edamam site
-  var queryID = "80dab669";
+  const url = `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(
+    food
+  )}&number=1&apiKey=${process.env.SPOONACULAR_API_KEY}`;
 
-  //Query ID is required by the API - see documentation on Edamam site
-  var queryKey = keys.edamam.ingredients_key;
+  axios
+    .get(url)
+    .then((searchResponse) => {
+      const ingredientId = searchResponse.data.results?.[0]?.id;
+      if (!ingredientId) {
+        console.warn("No Spoonacular match for:", food);
+        return;
+      }
 
-  //Run a request with axios to the Edamam API with the food item specified by var food
-  //NOTE: You can add additional parameters to this request, see documentation
-  var queryUrl =
-    "https://api.edamam.com/api/food-database/parser?app_id=" +
-    queryID +
-    "&app_key=" +
-    queryKey +
-    "&ingr=" +
-    food;
+      const detailUrl = `https://api.spoonacular.com/food/ingredients/${ingredientId}/information?amount=100&unit=grams&apiKey=${process.env.SPOONACULAR_API_KEY}`;
 
-  axios.get(queryUrl).then(function(response) {
-    var foodLabel = response.data.parsed[0].food.label;
-    var foodLabelName = foodLabel.split(",");
-    var foodCalories = response.data.parsed[0].food.nutrients.ENERC_KCAL;
-    var foodProtein = response.data.parsed[0].food.nutrients.PROCNT;
-    var foodFat = response.data.parsed[0].food.nutrients.FAT;
-    var foodCarbs = response.data.parsed[0].food.nutrients.CHOCDF;
+      return axios.get(detailUrl);
+    })
+    .then((detailResponse) => {
+      if (!detailResponse) return;
 
-    //Create ingredient object to store the data being returned by the API call
-    ingredient = {
-      name: foodLabelName[0],
-      calories: foodCalories,
-      protein: foodProtein,
-      fat: foodFat,
-      carbs: foodCarbs,
-      checked: "",
-      UserId: userID
-    };
+      const nutrients = detailResponse.data.nutrition?.nutrients || [];
 
-    var ingredientNutrition = ingredient;
-    var action = ingredientAction;
+      const getNutrient = (name) =>
+        nutrients.find((n) => n.name === name)?.amount || 0;
 
-    if (action === "post_to_db") {
-      addIngredientNutrition(ingredientNutrition);
-    }
+      const ingredient = {
+        name: detailResponse.data.name,
+        calories: getNutrient("Calories"),
+        protein: getNutrient("Protein"),
+        fat: getNutrient("Fat"),
+        carbs: getNutrient("Carbohydrates"),
+        checked: "",
+        UserId: userID,
+      };
 
-    // if (action === "check_db") {
-    //   addIngredientNutrition(ingredientNutrition);
-    // }
-  });
+      if (ingredientAction === "post_to_db") {
+        addIngredientNutrition(ingredient);
+      }
+    })
+    .catch((err) => {
+      console.error(
+        "Spoonacular API error:",
+        err.response?.data || err.message
+      );
+    });
 };

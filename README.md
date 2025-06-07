@@ -2,7 +2,7 @@
 
 ## Welcome to LazyCupboard
 
-Lazy cupboard is a fresh, new way to organize your recipes and manage your meals in a health-consious and budget friendly-way. 
+Lazy cupboard is a fresh, new way to organize your recipes and manage your meals in a health-consious and budget friendly-way.
 
 This project gives structure to the user's eating habbits, while keeping variety and flexibility in mind by providing recipes that work for ingredients that they already have in their kitchen.
 
@@ -15,29 +15,31 @@ Lazy Cupboard takes care of the greuling process of making recipes and gives tim
 
 First we authenticate our users using Passport.js. which then allows a viewer to view the home page.
 
-Then we take the user input and save it in a query that looks through the Edamam API.
+Then we take the user input and save it in a query that looks through the Spoonacular API.
 Once a user has clicked the ingredients they want to use(based on what they have gotten from the search) the app will query a search through edamaom to find recipes containing those ingredients. The search will then return the recipe options to the user. The user can then choose from the recipe list what they would like to make today.
 
 Deployed site:[https://lazycupboard.herokuapp.com/](https://lazycupboard.herokuapp.com/)
 <br/><br/>
 
 ### Technologies used
-* JavaScript
-* NodeJS
-* Express
-* Materialize CSS
-* Passport
-* Handlebars
-* JQuery
-* MySQL
-* Sequelize ORM
-* Axios
-* Mocha, Chai, Travis
-<br/><br/>
+
+- JavaScript
+- NodeJS
+- Express
+- Materialize CSS
+- Passport
+- Handlebars
+- JQuery
+- MySQL
+- Sequelize ORM
+- Axios
+- Mocha, Chai, Travis
+  <br/><br/>
 
 ### New User Guide
 
 #### Getting Started
+
 <br/>
 1. On the landing page, you must either register for an account or login to get started. If you already have an account, click the 'Login' button. If you do not have an account, register by clicking on the 'Sign Up' button.
 <br/>
@@ -45,8 +47,8 @@ Deployed site:[https://lazycupboard.herokuapp.com/](https://lazycupboard.herokua
 
 ![gif-1](Images/gif01.gif)
 
-
 #### Add Ingredients To View Nutritional Facts
+
 <br/>
 1. Click on the 'Ingredient' text box, type in an ingredient you have in your kitchen, then click the '+' button.
 <br/><br/>
@@ -55,13 +57,13 @@ Deployed site:[https://lazycupboard.herokuapp.com/](https://lazycupboard.herokua
 ![gif-2](Images/gif02.gif)
 
 3. Review the nutritional facts of the ingredients you have entered, then use the check boxes to the left of the list to select the ingredients you would like find recipes for.
-<br/><br/>
+   <br/><br/>
 4. Click on the 'Find Recipes' to view available recipes.
 
 ![gif-4](Images/gif04.gif)
 
-
 #### Add Recipes To Your List of Recipes
+
 <br/>
 1. After reviewing the recipes provided, save the recipes you like by clicking the 'Prepare' button for each recipe.
 <br/><br/>
@@ -69,8 +71,8 @@ Deployed site:[https://lazycupboard.herokuapp.com/](https://lazycupboard.herokua
 
 ![gif-5](Images/gif05.gif)
 
-
 #### Navigate Back To The Add Ingredients Page
+
 <br/>
 1. Navigate back to the initial page, where you can either:
 <br/><br/>

@@ -5,7 +5,7 @@ var db = require("../models");
 var ingredientsAPIscript = require("../controllers/ingredientsAPIscript");
 
 // REQUIRE AXIOS FOR API CALL
-var axios = require("axios");
+const axios = require("axios");
 
 // REQUIRE RECIPES API SCRIPT FILE
 var recipesAPIscript = require("../controllers/recipesAPIscript");
@@ -13,7 +13,8 @@ var recipesAPIscript = require("../controllers/recipesAPIscript");
 const bcrypt = require("bcryptjs");
 const passport = require("../config/passport");
 
-const startOfToday = require("date-fns/start_of_today");
+const { startOfToday } = require("date-fns");
+
 const { Op } = require("sequelize");
 
 module.exports = function(app) {
@@ -23,7 +24,7 @@ module.exports = function(app) {
   app.get("/api/ingredients", function(req, res) {
     let userID = process.env.NODE_ENV !== "test" ? req.user.id : 1;
     db.Ingredients.findAll({
-      where: { UserId: userID }
+      where: { UserId: userID },
     }).then(function(dbIngredient) {
       res.json(dbIngredient);
     });
@@ -35,9 +36,9 @@ module.exports = function(app) {
   app.get("/api/ingredients/:id", function(req, res) {
     db.Ingredients.findOne({
       where: {
-        id: req.params.id
+        id: req.params.id,
       },
-      include: [db.Measurements]
+      include: [db.Measurements],
     }).then(function(dbIngredient) {
       res.json(dbIngredient);
     });
@@ -83,7 +84,7 @@ module.exports = function(app) {
     db.Recipe.destroy({ where: { saved: false } });
 
     db.Ingredients.findAll({
-      where: { checked: "checked", UserId: userID }
+      where: { checked: "checked", UserId: userID },
     }).then(function(ing) {
       //Variable to store the 'checked' ingredients, which will be sent to the API call
       var food = "";
@@ -96,44 +97,44 @@ module.exports = function(app) {
 
       //Variable that hold function for handling what comes back from API call
       var sendRecipes = function(response) {
-        //Cannot use .catch -- replaced with if/else statement
-        // console.log(response)
         if (response.length > 0) {
           var recipes = [];
           var counteri = 0;
 
           for (var i = 0; i < response.length; i++) {
             recipes.push({
-              label: response[i].recipe.label,
-              calories: Number(
-                (
-                  response[i].recipe.calories / response[i].recipe.yield
-                ).toFixed(0)
-              ),
-              url: response[i].recipe.url,
-              uri: response[i].recipe.uri,
-              image: response[i].recipe.image,
-              RecipeIngredients: response[i].recipe.ingredients,
-              UserId: req.user.id
+              label: response[i].label,
+              calories: response[i].calories || 0,
+              url: response[i].url || "",
+              uri: response[i].uri || "",
+              image: response[i].image || "",
+              RecipeIngredients: response[i].recipeIngredient || [],
+              UserId: req.user.id,
             });
+
             db.Recipe.create(recipes[i], {
-              include: [db.RecipeIngredient]
-            }).then(function(dbResponse) {
-              counteri++;
-              if (counteri === response.length) {
-                db.Recipe.findAll({
-                  include: [db.RecipeIngredient]
-                }).then(function(responsetobeSent) {
-                  res.json(responsetobeSent);
-                });
-              }
-            });
+              include: [db.RecipeIngredient],
+            })
+              .then(function(dbResponse) {
+                counteri++;
+                if (counteri === response.length) {
+                  db.Recipe.findAll({
+                    include: [db.RecipeIngredient],
+                  }).then(function(responsetobeSent) {
+                    res.json(responsetobeSent);
+                  });
+                }
+              })
+              .catch((err) => {
+                console.error("DB Insert Error:", err);
+              });
           }
         } else {
           res.status(500).send("Recipes Internal Server Error");
           console.log("Recipes - NO RESULTS FOUND");
         }
       };
+
       //Calling the recipessAPIscript module.export function getRecipesInfo and passing it the parameters needed
       recipesAPIscript.getRecipesInfo(food, sendRecipes);
     });
@@ -154,7 +155,7 @@ module.exports = function(app) {
     }
     passport.authenticate("local", {
       successRedirect: "/LazyCupboard",
-      failureRedirect: "register"
+      failureRedirect: "register",
       // failureFlash: true
     })(res, req, next);
   });
@@ -163,7 +164,7 @@ module.exports = function(app) {
     "/users/login",
     passport.authenticate("local", {
       successRedirect: "/LazyCupboard",
-      failureRedirect: "register"
+      failureRedirect: "register",
       // failureFlash: true
     })
   );
@@ -186,10 +187,10 @@ module.exports = function(app) {
         email: res.body.email,
         role: res.body.role,
         password: res.body.password,
-        password2: res.body.password2
+        password2: res.body.password2,
       });
     } else {
-      db.User.findOne({ where: { email: req.body.email } }).then(user => {
+      db.User.findOne({ where: { email: req.body.email } }).then((user) => {
         if (user) {
           // console.log(user);
           // console.log("Failing");
@@ -203,7 +204,7 @@ module.exports = function(app) {
             username: req.body.username,
             email: req.body.email,
             role: req.body.role,
-            password: req.body.password
+            password: req.body.password,
             // user: req.user.id
           };
 
@@ -219,13 +220,13 @@ module.exports = function(app) {
 
               db.User.create(newUser)
                 // will then pass in new user
-                .then(user => {
+                .then((user) => {
                   // req.flash(
                   //   "success_msg",
                   //   "You are now registered and can login"
                   // );
                 })
-                .catch(err => {
+                .catch((err) => {
                   // console.log(err);
                   return;
                 });
@@ -247,7 +248,7 @@ module.exports = function(app) {
     let thisUser = process.env.NODE_ENV !== "test" ? req.user.id : 1;
     db.User.findOne({
       //1. Go to the models folder, use the Users table and find all data for current user
-      where: { id: thisUser }
+      where: { id: thisUser },
     }).then(function(dbUser) {
       //return the data to the browser as json
       res.send(dbUser);
@@ -273,12 +274,12 @@ module.exports = function(app) {
     if (req.body.checked === "true") {
       db.Ingredients.update(
         {
-          checked: "checked"
+          checked: "checked",
         },
         {
           where: {
-            id: req.body.id
-          }
+            id: req.body.id,
+          },
         }
       ).then(function() {
         res.status(200).send("OK");
@@ -286,12 +287,12 @@ module.exports = function(app) {
     } else {
       db.Ingredients.update(
         {
-          checked: ""
+          checked: "",
         },
         {
           where: {
-            id: req.body.id
-          }
+            id: req.body.id,
+          },
         }
       ).then(function() {
         res.status(200).send("OK");
@@ -301,12 +302,12 @@ module.exports = function(app) {
   app.put("/api/saveRecipe", function(req, res) {
     db.Recipe.update(
       {
-        saved: true
+        saved: true,
       },
       {
         where: {
-          id: req.body.id
-        }
+          id: req.body.id,
+        },
       }
     ).then(function(response) {
       res.status(200).send(req.body.id);
@@ -318,8 +319,8 @@ module.exports = function(app) {
       where: {
         UserId: req.user.id,
         saved: true,
-        createdAt: { [Op.gt]: startOfToday() }
-      }
+        createdAt: { [Op.gt]: startOfToday() },
+      },
     })
       .then(function(responseArray) {
         var result = {
@@ -327,20 +328,20 @@ module.exports = function(app) {
           children: [
             {
               name: "Total Calories",
-              children: []
-            }
-          ]
+              children: [],
+            },
+          ],
         };
         for (var i = 0; i < responseArray.length; i++) {
           result.children[0].children.push({
             name: responseArray[i].label,
-            size: responseArray[i].calories
+            size: responseArray[i].calories,
           });
         }
         // console.log(result);
         res.json(result);
       })
-      .catch(err => {
+      .catch((err) => {
         // console.log(err);
         return;
       });

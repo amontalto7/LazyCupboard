@@ -1,6 +1,6 @@
 var db = require("../models");
 const { ensureAuthenticated } = require("../controllers/authController");
-const startOfToday = require("date-fns/start_of_today");
+const { startOfToday } = require("date-fns"); //  Corrected for v2+
 const getRecipebyURI = require("../controllers/recipeIngredientsAPIscript");
 const { Op } = require("sequelize");
 
@@ -13,7 +13,7 @@ module.exports = function(app) {
   app.get("/LazyCupboard", ensureAuthenticated, function(req, res) {
     //TODO : Move below findAll to a function "displayIngredients"
     db.Ingredients.findAll({
-      where: { UserId: req.user.id }
+      where: { UserId: req.user.id },
     }).then(function(dbIngredient, dbMeals) {
       // data returned is an array. Need to wrap it in an object to send to handlebars
       let hbIngredients = { dbIngredient };
@@ -27,16 +27,16 @@ module.exports = function(app) {
       dbExample
     ) {
       res.render("example", {
-        example: dbExample
+        example: dbExample,
       });
     });
   });
   app.get("/recipe/:id", ensureAuthenticated, function(req, res) {
     db.Recipe.findOne({
       where: {
-        id: req.params.id
+        id: req.params.id,
       },
-      include: [db.RecipeIngredient]
+      include: [db.RecipeIngredient],
     }).then(function(recipetoSend) {
       res.render("recipe", recipetoSend);
     });
@@ -48,9 +48,9 @@ module.exports = function(app) {
       where: {
         UserId: req.user.id,
         saved: true,
-        createdAt: { [Op.gt]: startOfToday() }
+        createdAt: { [Op.gt]: startOfToday() },
       },
-      include: [db.RecipeIngredient]
+      include: [db.RecipeIngredient],
     }).then(function(recipeList) {
       let responsetobeSent = { recipeList };
       res.render("myrecipes", responsetobeSent);

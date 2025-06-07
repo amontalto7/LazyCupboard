@@ -1,6 +1,6 @@
 require("dotenv").config();
 var express = require("express");
-var exphbs = require("express-handlebars");
+const { engine } = require("express-handlebars");
 
 var db = require("./models");
 const passport = require("passport");
@@ -16,7 +16,7 @@ app.use(
   require("express-session")({
     secret: "keyboard cat",
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
   })
 );
 require("./config/passport");
@@ -35,12 +35,19 @@ app.use(function(req, res, next) {
 });
 
 // Handlebars
+const Handlebars = require("handlebars");
+const {
+  allowInsecurePrototypeAccess,
+} = require("@handlebars/allow-prototype-access");
+
 app.engine(
   "handlebars",
-  exphbs({
-    defaultLayout: "main"
+  engine({
+    handlebars: allowInsecurePrototypeAccess(Handlebars),
+    defaultLayout: "main",
   })
 );
+
 app.set("view engine", "handlebars");
 
 // Routes
