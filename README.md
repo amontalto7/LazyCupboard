@@ -18,7 +18,7 @@ First we authenticate our users using Passport.js. which then allows a viewer to
 Then we take the user input and save it in a query that looks through the Spoonacular API.
 Once a user has clicked the ingredients they want to use(based on what they have gotten from the search) the app will query a search through edamaom to find recipes containing those ingredients. The search will then return the recipe options to the user. The user can then choose from the recipe list what they would like to make today.
 
-Deployed site:[https://lazycupboard.herokuapp.com/](https://lazycupboard.herokuapp.com/)
+Deployed site:[https://lazycupboard.onrender.com/](https://lazycupboard.onrender.com/)
 <br/><br/>
 
 ### Technologies used
